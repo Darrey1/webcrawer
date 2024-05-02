@@ -13,6 +13,7 @@ from pprint import pprint
 import json
 import csv
 import os
+from datetime import datetime
 
 async def setup_driver(address,user_agent):
     options = Options()
@@ -77,7 +78,10 @@ def values_exist(values, csv_file):
     return False   
 
 
-async def get_each_product_data(driver,link):
+async def get_each_product_data(driver,link,url,image_link):
+    current_datetime = datetime.now()
+
+    Timespan = current_datetime.strftime('%Y-%m-%d %H:%M:%S')
     dic_data = {}
     await asyncio.sleep(1)
     link.click()
@@ -87,14 +91,17 @@ async def get_each_product_data(driver,link):
     refrence_number = driver.find_element(By.CSS_SELECTOR,"#product_reference > span")
     description = driver.find_element(By.CSS_SELECTOR, "#short_description_content")
     price = driver.find_element(By.ID, "our_price_display")
-    image = driver.find_element(By.TAG_NAME, "img")
-    image_link = image.get_attribute('src')
+    # image = driver.find_element(By.CLASS_NAME, "clearfix")
+    # img_url = image.find_element(By.TAG_NAME, 'img')
+    # image_link = img_url.get_attribute('src')
     await asyncio.sleep(3)
+    dic_data['Timespan'] = Timespan
     dic_data['Title']= title.text
     dic_data['Refrence_number']= refrence_number.text
     dic_data['Description']= description.text
     dic_data['Price']= price.text
     dic_data['Image'] = image_link
+    dic_data['Url'] = url
     driver.execute_script("window.scrollBy(0, 700);")
     try:
        product_details = driver.find_element(By.CSS_SELECTOR, "#content > div > div.pts-tab.pts-tab-product.tab-v4 > ul > li:nth-child(2) > a")
@@ -114,6 +121,28 @@ async def get_each_product_data(driver,link):
     return dic_data
 
 
+
+
+async def category(driver):
+       wait = WebDriverWait(driver, 10)
+       wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
+       category_url = driver.find_element(By.ID, "right_column")
+       category_list = category_url.find_elements(By.TAG_NAME, 'li')
+       print(category_list)
+       for category in category_list:
+           try:
+              link = category.find_element(By.TAG_NAME, "a")
+              print(category.find_element(By.TAG_NAME, "a").get_attribute('href'))
+              link.click()
+              wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
+           
+              await get_all_data(driver)
+              continue
+           except Exception as err:
+              print(err)
+              continue
+        
+        
     
 async def get_all_data(driver):
     csv_file = "output.csv"
@@ -126,15 +155,16 @@ async def get_all_data(driver):
         print(f"lenght of the data results is {len(data_results)}")
         try:   
             for index,result in enumerate(data_results):
-                
+                img_url = result.find_element(By.TAG_NAME, 'img')
+                image_link = img_url.get_attribute('src')
                 product_link = result.find_element(By.CLASS_NAME,'product-name')
                 link = product_link.get_attribute("href")
                 if link not in unique_link:
                    unique_link.append(link)
-                   pprint(product_link.get_attribute("href"))
+                   url = product_link.get_attribute("href")
                    product_link.click()
                    driver.back()
-                   data = await get_each_product_data(driver, product_link)
+                   data = await get_each_product_data(driver, product_link, url,image_link)
                
                    if data is None:
                        driver.back()
@@ -171,8 +201,14 @@ async def get_all_data(driver):
                    wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
                    await asyncio.sleep(3)
                    continue
-            await next_button(driver)
-            await asyncio.sleep(3) 
+            try:
+               await next_button(driver)
+               await asyncio.sleep(3) 
+            except Exception as err:
+                print(f"err occur: {err}")
+                driver.back()
+                wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
+                return
             counter += 1
         except Exception as err:
             driver.back()
@@ -202,7 +238,7 @@ async def main(url):
             await click_product_details(driver)
             await asyncio.sleep(5)
             wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
-            await get_all_data(driver)
+            await category(driver)
             break
         
         except Exception as err:
