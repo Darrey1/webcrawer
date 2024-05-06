@@ -53,35 +53,44 @@ async def get_each_product_data(driver,link):
     wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
     await asyncio.sleep(2)
     try:
-       product_description = driver.find_element(By.CLASS_NAME, "productView-title")
+       title = driver.find_element(By.CLASS_NAME, "productView-title")
        print("the title is scrapped")
+       print(title.text)
+       return
     except Exception as err:
         print(err)
         return
-    print(product_description.text)
+    
+    
     
 
     
     
 async def get_all_brand_data(driver):
-       main_prduct_page = driver.find_element(By.CLASS_NAME, "productGrid")
-       product_data = main_prduct_page.find_elements(By.TAG_NAME, "li")
+       #main_prduct_page = driver.find_element(By.CLASS_NAME, "productGrid")
+       product_data = driver.find_elements(By.CLASS_NAME, "product--1")
        wait = WebDriverWait(driver, 15)
        #print(f"brand number is {len(product_data)}")
        while True:
         try:
+          print("printed!")
           for data_value in product_data:
-              product_link = data_value.find_element(By.CLASS_NAME,"card-figure")
-              link_tag = product_link.find_element(By.TAG_NAME,"a")
-              link = product_link.find_element(By.TAG_NAME,"a").get_attribute("href")
-              print(link)
+              print("hey")
+              link_tag = data_value.find_element(By.TAG_NAME,"a")
+              print("hi")
+              #link = link_tag.get_attribute("href")
+              #print(link)
+              link_tag.click()
+              driver.back()
               await asyncio.sleep(2)
               await get_each_product_data(driver, link_tag)
+              print("hello")
               driver.back()
               wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
+              await asyncio.sleep(2)
               continue
               
-          return
+          break
                     
         except Exception as err:
              print(f"perhaps an error occur!: {err}")
@@ -120,6 +129,16 @@ async def main_func(url):
         driver.quit()
         
     driver.quit()
+    
+    
+if __name__ =="__main__":
+    from time import sleep
+    while True:
+       #url = "https://www.aperfectdealer.com/"
+       #asyncio.run(main(url))
+       url = "https://shoestores.com/"
+       asyncio.run(main_func(url))
+       sleep(3600)
         
 
 

@@ -6,6 +6,9 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException
+from bs4 import BeautifulSoup
+
 import threading
 import time
 import asyncio
@@ -13,6 +16,7 @@ from pprint import pprint
 import json
 import csv
 import os
+from time import sleep
 
 async def setup_driver(address,user_agent):
     options = Options()
@@ -30,9 +34,10 @@ async def visit_website(driver, url):
 
 async def clear_cookies(driver):
     driver.delete_all_cookies()
+    
 
 async def next_button(driver):
-
+    #//*[@id="gf-products"]
      driver.execute_script("window.scrollBy(0, 600);")
      next = driver.find_element(By.CLASS_NAME,"next")
      next.click()
@@ -45,6 +50,7 @@ async def refresh_page(driver):
 
 
 async def click_product_details(driver):
+    driver.execute_script("window.scrollBy(0, 300);")
     link = driver.find_element(By.XPATH,'//*[@id="Banner-desktop_banner"]')
     link.click()
 
@@ -62,96 +68,78 @@ def values_exist(values, csv_file):
 
     return False
 
-async def get_each_product_data(driver,link):
+async def get_each_product_data(driver,link,img_link):
+    #driver.execute_script("window.scrollBy(0, 700);")
     dic_data = {}
-    await asyncio.sleep(1)
-    link.click()
-    wait = WebDriverWait(driver, 10)
-    wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
-    title = driver.find_element(By.CSS_SELECTOR, "#ProductInfo-template--16852200849646__main > div.product__title > h2")
-    price = driver.find_element(By.CSS_SELECTOR, "#price-template--16852200849646__main > div > div > div.price__regular > span.bold_option_price_display.price-item.price-item--regular")
-    color = driver.find_element(By.CSS_SELECTOR, "#swatch-option1 > div > fieldset > legend > label > span.swatch-variant-name")
-    swatch_image = driver.find_element(By.CSS_SELECTOR, "#swatch-option1 > div > fieldset > ul > li > div.swatch-image.swatch-selector.swatch-selected.swatch-allow-animation > div.star-set-image")
-    size = driver.find_element(By.CSS_SELECTOR, "#swatch-option2 > div > fieldset > ul > li:nth-child(2) > div > div.swatch-button-title-text")
-    width = driver.find_element(By.CSS_SELECTOR, "#swatch-option3 > div > fieldset > ul > li > div > div.swatch-button-title-text > span")
     try:
-        # Try finding clickable description element (approach 1)
-        description = driver.find_element(By.CSS_SELECTOR, "#ProductInfo-template--16852200849646__main > div:nth-child(9) > div > div:nth-child(1) > div > p")
-    except NoSuchElementException:
-        # Description might be in a dropdown, find the trigger element and click
-        description_trigger = driver.find_element(By.CSS_SELECTOR, "#ProductInfo-template--16852200849646__main > div:nth-child(9) > div > div:nth-child(1) > label")
-        description_trigger.click()
-        await asyncio.sleep(1)  # Wait for description to load
-        description = driver.find_element(By.CSS_SELECTOR, "#short_description_content")  # Find description again
-
-    image = driver.find_element(By.TAG_NAME, "img")
-    image_link = image.get_attribute('src')
-    await asyncio.sleep(3)
-    dic_data['Title']= title.text
-    dic_data['Price']= price.text
-    dic_data['Color']= color.text
-    dic_data['SwatchImage']= swatch_image.text
-    dic_data['Size']= size.text
-    dic_data['Width']= width.text
-    dic_data['Description']= description.text
-    driver.execute_script("window.scrollBy(0, 700);")
-    html_content = driver.page_source  # Get the current page source (HTML content)
-    soup = BeautifulSoup(html_content, 'html.parser')
-    images = soup.select('.product-media-modal__content img')  # Adjust selector if needed
-
-    image_links = []
-    for image in images:
-        image_link = image.get_attribute('src')
-        image_links.append(image_link)
-
-    dic_data['Image Links'] = image_links
-    return dic_data
+      
+      await asyncio.sleep(1)
+      #link.click()
+      wait = WebDriverWait(driver, 10)
+      wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
+      title = driver.find_element(By.CLASS_NAME, "product__title") ##price-template--16852200882414__main > div > div > div.price__regular > span.bold_option_price_display.price-item.price-item--regular
+      #Regular_price = driver.find_element(By.CSS_SELECTOR,"price__regular")
+      #sale_price = driver.find_element(By.CSS_SELECTOR, "price-item--sale")
+      driver.execute_script("window.scrollBy(0, 200);")
+      await asyncio.sleep(3)
+      dic_data['Title']= title.text
+      #dic_data['Regular_price']= sale_price.text
+      #dic_data['sale_price']= sale_price.text
+      dic_data['image']= img_link
+      #dic_data['Regular_price'] = Regular_price
+      #dic_data['sale_price'] = sale_price
+      return dic_data
+    except Exception as err:
+        print("error occur",err)
+        return None
+    
 
 
 
 async def get_all_data(driver):
     csv_file = "soleprovision.csv"
-    wait = WebDriverWait(driver, 15)
+    wait = WebDriverWait(driver, 25)
     counter = 0
     unique_link = []
     while counter <= 100:
-        
-        data_results = driver.find_elements(By.CLASS_NAME,"spf-col-xl-4")
+        product = driver.find_element(By.XPATH, '//*[@id="gf-products"]')
+        data_results = product.find_elements(By.CLASS_NAME,"spf-col-xl-4")
         print(f"lenght of the data results is {len(data_results)}")
         try:
-            for index,result in enumerate(data_results):
+            for result in data_results:
 
-                product_link = result.find_element(By.CSS_SELECTOR, value="div[class='spf-product__info'] div a")
+                product_link = result.find_element(By.CLASS_NAME, "spf-product-card__image-wrapper")
                 link = product_link.get_attribute("href")
+                product_img = result.find_element(By.TAG_NAME, "img").get_attribute("src")
+                #pprint(product_link.get_attribute("href"))
+                product_link.click()
+                ##driver.back()
+                data = await get_each_product_data(driver, product_link, product_img)
+                wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
+                print(product_img)
                 if link not in unique_link:
                    unique_link.append(link)
                    pprint(product_link.get_attribute("href"))
                    product_link.click()
-                   driver.back()
-                   data = await get_each_product_data(driver, product_link)
-
+                   #driver.back()
+                   data = await get_each_product_data(driver, product_link, product_img)
+                   print(data)   
                    if data is None:
                        driver.back()
                        print("the return data is none")
                        wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
-                       continue
-
-
+                       continue   
                    if os.path.isfile(csv_file) and os.path.getsize(csv_file) > 0:
                        with open(csv_file, mode='r') as file:
                            reader = csv.reader(file)
                            existing_header = next(reader, None)
                            #if existing_header == list(data.keys()):
-                           if existing_header and len(existing_header) > 13:
+                           if existing_header:
                                append_file = "a"
                            else:
-                               append_file = 'w'
-
+                               append_file = 'w'   
                    else:
-                        append_file = 'w'
-
-
-
+                        append_file = 'w'  
                    with open(csv_file, mode=append_file, newline='') as file:
                         writer = csv.writer(file)
                         print("check if this place will be printed")
@@ -165,17 +153,38 @@ async def get_all_data(driver):
                    wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
                    await asyncio.sleep(3)
                    continue
+                else:
+                    continue
             await next_button(driver)
             await asyncio.sleep(3)
             counter += 1
         except Exception as err:
-            driver.back()
-            print(f"error occur: {err}")
-            wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
-            await asyncio.sleep(3)
-            continue
+            #driver.back()
+            current_url = driver.current_url
+            if current_url == "https://www.soleprovisions.com/":
+                await restart(driver)
+                continue
+            else:
+                print(f"error occur: {err}")
+                wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
+                await asyncio.sleep(3)
+                continue
+        
 
-
+async def restart(driver):
+    try:
+          wait = WebDriverWait(driver, 20)
+          wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
+          await clear_cookies(driver)
+          await asyncio.sleep(2)
+          await click_product_details(driver)
+          await asyncio.sleep(5)
+          wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
+    except Exception as err:
+          print(err)
+          await refresh_page(driver)
+          wait = WebDriverWait(driver, 10)
+          wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
 
 async def main(url):
     proxy_address = "socks5://194.163.134.97:1080"
@@ -185,6 +194,7 @@ async def main(url):
 
     while True:
         driver = await setup_driver(proxy_address,user_agent)
+        
         try:
             await visit_website(driver, url)
             # Wait until the page is fully loaded (timeout after 10 seconds)
@@ -206,3 +216,10 @@ async def main(url):
         driver.quit()
 
     driver.quit()
+    
+
+
+while True:
+    url = "https://www.soleprovisions.com/"
+    asyncio.run(main(url))
+    sleep(3600)
