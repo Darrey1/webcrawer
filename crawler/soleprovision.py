@@ -69,25 +69,19 @@ def values_exist(values, csv_file):
     return False
 
 async def get_each_product_data(driver,link,img_link):
-    #driver.execute_script("window.scrollBy(0, 700);")
     dic_data = {}
     try:
       
       await asyncio.sleep(1)
-      #link.click()
       wait = WebDriverWait(driver, 10)
       wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
-      title = driver.find_element(By.CLASS_NAME, "product__title") ##price-template--16852200882414__main > div > div > div.price__regular > span.bold_option_price_display.price-item.price-item--regular
-      #Regular_price = driver.find_element(By.CSS_SELECTOR,"price__regular")
-      #sale_price = driver.find_element(By.CSS_SELECTOR, "price-item--sale")
+      title = driver.find_element(By.CLASS_NAME, "product__title")
+      sale_price = driver.find_element(By.CLASS_NAME, "price-item")
       driver.execute_script("window.scrollBy(0, 200);")
       await asyncio.sleep(3)
       dic_data['Title']= title.text
-      #dic_data['Regular_price']= sale_price.text
-      #dic_data['sale_price']= sale_price.text
+      dic_data['sale_price']= sale_price.text
       dic_data['image']= img_link
-      #dic_data['Regular_price'] = Regular_price
-      #dic_data['sale_price'] = sale_price
       return dic_data
     except Exception as err:
         print("error occur",err)
@@ -102,28 +96,22 @@ async def get_all_data(driver):
     counter = 0
     unique_link = []
     while counter <= 100:
-        product = driver.find_element(By.XPATH, '//*[@id="gf-products"]')
-        data_results = product.find_elements(By.CLASS_NAME,"spf-col-xl-4")
+        #product = driver.find_element(By.XPATH, '//*[@id="gf-products"]')
+        data_results = driver.find_elements(By.CLASS_NAME,"spf-col-xl-4")
         print(f"lenght of the data results is {len(data_results)}")
         try:
             for result in data_results:
 
-                product_link = result.find_element(By.CLASS_NAME, "spf-product-card__image-wrapper")
+                product_link = result.find_element(By.TAG_NAME, "a")
                 link = product_link.get_attribute("href")
                 product_img = result.find_element(By.TAG_NAME, "img").get_attribute("src")
-                #pprint(product_link.get_attribute("href"))
-                product_link.click()
-                ##driver.back()
-                data = await get_each_product_data(driver, product_link, product_img)
-                wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
                 print(product_img)
                 if link not in unique_link:
                    unique_link.append(link)
                    pprint(product_link.get_attribute("href"))
                    product_link.click()
                    #driver.back()
-                   data = await get_each_product_data(driver, product_link, product_img)
-                   print(data)   
+                   data = await get_each_product_data(driver, product_link, product_img)   
                    if data is None:
                        driver.back()
                        print("the return data is none")
@@ -186,7 +174,7 @@ async def restart(driver):
           wait = WebDriverWait(driver, 10)
           wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
 
-async def main(url):
+async def main_func(url):
     proxy_address = "socks5://194.163.134.97:1080"
     user_agent = "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36"
 
@@ -218,8 +206,3 @@ async def main(url):
     driver.quit()
     
 
-
-while True:
-    url = "https://www.soleprovisions.com/"
-    asyncio.run(main(url))
-    sleep(3600)

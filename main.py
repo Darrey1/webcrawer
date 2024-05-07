@@ -1,14 +1,24 @@
 from crawler.app import main
-#from crawler.app2 import main_func
+from crawler.shoestore import main_
+from crawler.soleprovision import main_func
 from time import sleep
 import asyncio
 
 if __name__ =="__main__":
     while True:
-       url = "https://www.aperfectdealer.com/"
+        #(aperfectdealer website)
+       #url = "https://www.aperfectdealer.com/"
        #asyncio.run(main(url))
-       #url = "https://shoestores.com/"
-       asyncio.run(main(url))
+       
+       #(soleprovision website)
+       url = "https://shoestores.com/"
+       asyncio.run(main_func(url))
+       
+                                             #uncomment any website to run
+       #(shoestore website)
+       #url ="https://shoestores.com/"
+       #asyncio.run(main_(url))
+       
        sleep(3600)
     
     
