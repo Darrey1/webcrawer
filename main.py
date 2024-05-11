@@ -11,7 +11,7 @@ if __name__ =="__main__":
        #asyncio.run(main(url))
        
        #(soleprovision website)
-       url = "https://shoestores.com/"
+       url = "https://www.soleprovisions.com/"
        asyncio.run(main_func(url))
        
                                              #uncomment any website to run
@@ -22,3 +22,4 @@ if __name__ =="__main__":
        sleep(3600)
     
     
+ 
