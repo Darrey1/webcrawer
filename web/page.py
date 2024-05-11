@@ -2,17 +2,22 @@ import streamlit as st
 import pandas as pd
 import asyncio
 import os 
-file_path = os.path.dirname(__file__)
 import pandas as pd
 import numpy as np
 import pandas as pd
 import streamlit as st
-import altair as alt
+#import altair as alt
+file_path = os.path.dirname(__file__)
 
-df = pd.read_csv("/home/pythondev-ai/projects/web_crawler/output.csv")
 
 
-def csv_table():
+app_csv = "/home/pythondev-ai/projects/Webscraping-monitoring-/output.csv"
+#soloprovision_csv = "/home/pythondev-ai/projects/Webscraping-monitoring-/soleprovision.csv"
+shoesstore_cvs = "/home/pythondev-ai/projects/Webscraping-monitoring-/shoestore.csv"
+
+
+
+def csv_table(df):
     
     df["Timespan"] = pd.to_datetime(df["Timespan"])
 
@@ -46,7 +51,9 @@ def csv_table():
         hide_index=True,
     )
     
-def data_analysis():
+    
+    
+def data_analysis(df):
     new_df = df.loc[:, ['Timespan', 'Price']]
     st.divider()
     st.write("A line chart of price against time",unsafe_allow_html=True)
@@ -61,15 +68,14 @@ def data_analysis():
 
 @st.cache_data
 def load_data():
-    csv_name = "output.csv"
-    #/home/pythondev-ai/projects/web_crawler/output.csv
-    csv_path = os.path.join(file_path, csv_name)
-    df = pd.read_csv("/home/pythondev-ai/projects/web_crawler/output.csv")
-    return df
+    df1 = pd.read_csv(app_csv)
+    df2 = pd.read_csv(shoesstore_cvs)
+    return df1, df2
+
 
 async def main():
     st.sidebar.title('Menu')
-    df =load_data()
+    df1, df2 =load_data()
     menu_options = ['Home', 'CSV Table', 'Analysis', 'Scrap']
     selected_option = st.sidebar.radio('Select an option', menu_options)
 
@@ -79,18 +85,21 @@ async def main():
         st.write('Our project aims to gather information about various products from websites. With web scraping technology, we extract details like product names, descriptions, images, prices, and ages. This data helps users make informed decisions and stay updated on product trends. Explore our site to learn more about product scraping and its applications.!')
         st.balloons()
         st.divider()
-        new_df = df.loc[:, ['Timespan', 'Price']]
+        new_df = df1.loc[:, ['Timespan', 'Price']]
         st.bar_chart(new_df, x="Timespan", y="Price")
+        st.divider()
     elif selected_option == 'CSV Table':
         st.title('CSV Table')
-        csv_table()
+        csv_table(df1)
+        st.divider()
+        csv_table(df2)
     elif selected_option == 'Analysis':
         st.subheader('Market Data Analysis And Visualisation')
-        data_analysis()
+        data_analysis(df1)
     elif selected_option == 'Scrap':
         st.title('Scrap')
         st.write('Scraping functionality goes here.')
-
-# Run the app
-if __name__ == '__main__':
-    asyncio.run(main())
+        
+        
+        
+asyncio.run(main())

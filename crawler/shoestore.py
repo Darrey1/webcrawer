@@ -13,6 +13,7 @@ from pprint import pprint
 import json
 import csv
 import os
+from datetime import datetime
 
 
 async def setup_driver(address,user_agent):
@@ -20,6 +21,7 @@ async def setup_driver(address,user_agent):
     options.add_argument("--disable-notifications")
     #options.add_argument(f"--proxy-server={address}")
     options.add_argument(f'--user-agent={user_agent}')
+    #options.add_argument("--headless")
     driver = Chrome(
         service=ChromeService(executable_path=ChromeDriverManager().install()), options=options
     )
@@ -50,6 +52,8 @@ def values_exist(values, csv_file):
 
     return False
     
+    
+    
 async def next_button(driver):
     #//*[@id="gf-products"]
      driver.execute_script("window.scrollBy(0, 600);")
@@ -70,19 +74,27 @@ async def click_product_details(driver):
 async def get_each_product_data(driver,link,img_link):
     dic_data = {}
     try:
-      
+      current_datetime = datetime.now()
       await asyncio.sleep(1)
       wait = WebDriverWait(driver, 25)
       wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
+      Timespan = current_datetime.strftime('%Y-%m-%d %H:%M:%S')
       title = driver.find_element(By.CLASS_NAME, "productView-title")
-      #sale_price = driver.find_element(By.CLASS_NAME, "price--withoutTax")
-      #description = driver.find_element(By.CLASS_NAME, "afterpay-main-text")
+      sale_price = driver.find_element(By.XPATH, "/html/body/div[8]/div[1]/div/div[1]/section[1]/div/div[5]/div[2]/div[2]/span[3]")
       driver.execute_script("window.scrollBy(0, 200);")
       await asyncio.sleep(3)
+      dic_data['Timespan'] = Timespan
       dic_data['Title']= title.text
-      #dic_data['sale_price']= sale_price.text
-      #dic_data['description'] = description.text
-      dic_data['image']= img_link
+      dic_data['sale_price']= sale_price.text
+      dic_data['Image']= img_link
+      decription_ = driver.find_element(By.CLASS_NAME, "productView-description")
+      table_data = decription_.find_elements(By.TAG_NAME, "li")
+      for data in table_data:
+          result_data = str(data.text).split(":")
+          if result_data[0] !='' and len(result_data) > 1:
+             dic_data[result_data[0]] = ' '.join(result_data[1:])
+          else:
+              dic_data["description"] =result_data[0]
       return dic_data
     except Exception as err:
         print("error occur",err)
@@ -101,7 +113,8 @@ async def get_all_data(driver):
     unique_link = []
     while counter <= 100:
         #product = driver.find_element(By.XPATH, '//*[@id="gf-products"]')
-        data_results = driver.find_elements(By.CLASS_NAME,"product--1")
+        list_products = driver.find_element(By.CLASS_NAME, "productGrid")
+        data_results = list_products.find_elements(By.CLASS_NAME,"product--1")
         print(f"lenght of the data results is {len(data_results)}")
         try:
             for result in data_results:
@@ -173,7 +186,7 @@ async def restart(driver):
           await asyncio.sleep(5)
           wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
     except Exception as err:
-          print(err)
+         # print(err)
           await refresh_page(driver)
           wait = WebDriverWait(driver, 25)
           wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
@@ -203,7 +216,7 @@ async def main_(url):
             break
         
         except Exception as err:
-            print(err)
+            #print(err)
             await refresh_page(driver)
             wait = WebDriverWait(driver, 25)
             wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")

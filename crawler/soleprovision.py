@@ -8,7 +8,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 from bs4 import BeautifulSoup
-
+from datetime import datetime
 import threading
 import time
 import asyncio
@@ -23,6 +23,7 @@ async def setup_driver(address,user_agent):
     options.add_argument("--disable-notifications")
     options.add_argument(f"--no-sandbox")
     options.add_argument(f'--user-agent={user_agent}')
+    #options.add_argument("--headless")
     driver = Chrome(
         service=ChromeService(executable_path=ChromeDriverManager().install()), options=options
     )
@@ -68,23 +69,28 @@ def values_exist(values, csv_file):
 
     return False
 
+
+
+
 async def get_each_product_data(driver,link,img_link):
     dic_data = {}
     try:
-      
+      current_datetime = datetime.now()
       await asyncio.sleep(1)
       wait = WebDriverWait(driver, 10)
       wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
+      Timespan = current_datetime.strftime('%Y-%m-%d %H:%M:%S')
       title = driver.find_element(By.CLASS_NAME, "product__title")
       sale_price = driver.find_element(By.CLASS_NAME, "price-item")
       driver.execute_script("window.scrollBy(0, 200);")
       await asyncio.sleep(3)
+      dic_data['Timespan'] = Timespan
       dic_data['Title']= title.text
       dic_data['sale_price']= sale_price.text
-      dic_data['image']= img_link
+      dic_data['Image']= img_link
       return dic_data
     except Exception as err:
-        print("error occur",err)
+        #print("error occur",err)
         return None
     
 
@@ -169,7 +175,7 @@ async def restart(driver):
           await asyncio.sleep(5)
           wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
     except Exception as err:
-          print(err)
+          #print(err)
           await refresh_page(driver)
           wait = WebDriverWait(driver, 10)
           wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
@@ -197,7 +203,7 @@ async def main_func(url):
             break
 
         except Exception as err:
-            print(err)
+            #print(err)
             await refresh_page(driver)
             wait = WebDriverWait(driver, 10)
             wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
