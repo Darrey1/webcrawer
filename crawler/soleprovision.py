@@ -39,12 +39,54 @@ async def clear_cookies(driver):
 
 async def next_button(driver):
     #//*[@id="gf-products"]
+    try:
      driver.execute_script("window.scrollBy(0, 600);")
-     next = driver.find_element(By.CLASS_NAME,"next")
+     pagnation = driver.find_element(By.CLASS_NAME, "pagination-wrapper")
+     next = pagnation.find_element(By.CLASS_NAME, 'pagination__item')
+     current_page_source = driver.page_source
      next.click()
-     wait = WebDriverWait(driver, 10)
+     wait = WebDriverWait(driver, 30)
      wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
+     new_page_source = driver.page_source
+     if current_page_source != new_page_source:
+         print("A new product section is open...")
+     else:
+         print("End of the product list...")
+    except Exception as err:
+        pass
+        
 
+
+
+async def category(driver):
+    try:
+        wait = WebDriverWait(driver, 30)
+        hearder = driver.find_element(By.CLASS_NAME, "header-item")
+        sections = hearder.find_elements(By.CLASS_NAME, 'menu-item-has-children')
+        for section in sections:
+            sub_menu = section.find_element(By.CLASS_NAME, "sub-menu")#
+            sub_menu_div = sub_menu.find_element(By.CLASS_NAME, "list-item")
+            sub_menu_list = sub_menu_div.find_elements(By.TAG_NAME, "li")
+            for menu in sub_menu_list:
+                product_category = menu.find_element(By.TAG_NAME, "a")
+                try:
+                    product_category.click()
+                    wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
+                    await get_all_data(driver)
+                except Exception as err:
+                    print("Error occur...")
+    
+    except Exception as err:
+        current_url = driver.current_url
+        if current_url == "https://www.soleprovisions.com/":
+            await restart(driver)
+        else:
+            print(f"error occur: {err}")
+            wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
+            await asyncio.sleep(3)
+    
+    
+    
 
 async def refresh_page(driver):
     driver.refresh()
@@ -163,6 +205,9 @@ async def get_all_data(driver):
                 wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
                 await asyncio.sleep(3)
                 continue
+            
+            
+            
         
 
 async def restart(driver):
@@ -179,6 +224,9 @@ async def restart(driver):
           await refresh_page(driver)
           wait = WebDriverWait(driver, 10)
           wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
+          
+          
+          
 
 async def main_func(url):
     proxy_address = "socks5://194.163.134.97:1080"
