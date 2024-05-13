@@ -11,9 +11,9 @@ file_path = os.path.dirname(__file__)
 
 
 
-app_csv = "/home/pythondev-ai/projects/Webscraping-monitoring-/output.csv"
-#soloprovision_csv = "/home/pythondev-ai/projects/Webscraping-monitoring-/soleprovision.csv"
-shoesstore_cvs = "/home/pythondev-ai/projects/Webscraping-monitoring-/shoestore.csv"
+app_csv = "/home/abrahamalgorithm/Webscraping-monitoring-/output.csv"
+#soloprovision_csv = "/home/abrahamalgorithm/Webscraping-monitoring-/soleprovision.csv"
+shoesstore_cvs = "/home/abrahamalgorithm/Webscraping-monitoring-/shoestore.csv"
 
 
 
