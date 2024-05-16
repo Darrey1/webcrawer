@@ -24,14 +24,14 @@ if __name__ =="__main__":
         # asyncio.run(main(url1))
                                                         #uncomment each site to run ,just run them one by one for us to generate the desire data first
         
-        url2 = "https://www.soleprovisions.com/"
-        asyncio.run(main_func(url2))
+        # url2 = "https://www.soleprovisions.com/"
+        # asyncio.run(main_func(url2))
         
         
         
-        # url3 ="https://shoestores.com/"
-        # asyncio.run(main_(url3))
-        # sleep(3600)
+         url3 ="https://shoestores.com/"
+         asyncio.run(main_(url3))
+         sleep(3600)
     
     
  
