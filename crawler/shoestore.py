@@ -6,8 +6,10 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import StaleElementReferenceException, NoSuchElementException, WebDriverException
 import threading
 import time
+import pandas as pd
 import asyncio
 from pprint import pprint
 import json
@@ -41,24 +43,17 @@ async def refresh_page(driver):
     
 
 def values_exist(values, csv_file):
-    if not os.path.isfile(csv_file):
-        return False
-    with open(csv_file, mode='r') as file:
-        reader = csv.reader(file)
-        next(reader)
-        for row in reader:
-            if all(value in row for value in values):
-                return True
-
+    df = pd.read_csv(csv_file)
+    ref = df['Title'].values
+    for data in ref:
+        if str(data).lower() == values.lower():
+            return True
+        
     return False
     
     
     
 async def next_button(driver):
-    #//*[@id="gf-products"]
-    #pagination-link pagination-link--next
-    #//*[@id="product-listing-container"]/div[2]/ul/li[7]/a
-    ##product-listing-container > div.pagination > ul > li.pagination-item.pagination-item--next > a
      driver.execute_script("window.scrollBy(0, 100);")
      next = driver.find_element(By.CSS_SELECTOR,"#product-listing-container > div.pagination > ul > li.pagination-item.pagination-item--next > a")
      next.click()
@@ -74,7 +69,7 @@ async def click_product_details(driver):
     
 
 
-async def get_each_product_data(driver,link,img_link):
+async def get_each_product_data(driver,link,img_link,url):
     dic_data = {}
     try:
       current_datetime = datetime.now()
@@ -88,16 +83,19 @@ async def get_each_product_data(driver,link,img_link):
       await asyncio.sleep(3)
       dic_data['Timespan'] = Timespan
       dic_data['Title']= title.text
-      dic_data['sale_price']= sale_price.text
+      dic_data['Price']= sale_price.text
       dic_data['Image']= img_link
+      dic_data['Url'] = url
       decription_ = driver.find_element(By.CLASS_NAME, "productView-description")
       table_data = decription_.find_elements(By.TAG_NAME, "li")
+      list_data =[]
       for data in table_data:
           result_data = str(data.text).split(":")
           if result_data[0] !='' and len(result_data) > 1:
-             dic_data[result_data[0]] = ' '.join(result_data[1:])
+             list_data.append(' '.join(result_data[:]))
           else:
-              dic_data["description"] =result_data[0]
+              list_data.append(result_data[0])
+      dic_data["description"] =' '.join(list_data[:])
       return dic_data
     except Exception as err:
         print("error occur",err)
@@ -107,19 +105,24 @@ async def get_each_product_data(driver,link,img_link):
     
 async def category(driver):
     wait = WebDriverWait(driver, 30)
-    #//*[@id="menu"]/nav/ul[1]
-    ##menu > nav > ul.navPages-list.marketplace
     product_category = driver.find_element(By.CSS_SELECTOR, "#menu > nav > ul.navPages-list.marketplace")
     list_category = product_category.find_elements(By.CLASS_NAME, "navPages-item")
+    url_list = []
     for item in list_category:
-        print('hi')
         try:
            link  = item.find_element(By.CLASS_NAME, "navPages-action")
            url = link.get_attribute("href")
-           print(f"the link is {url}")
-           link.click()
+           url_list.append(url)
            wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
-           await get_all_data(driver)
+        except Exception as err:
+            continue
+    print(url_list)
+    for url in url_list:
+        try:
+            print("hello")
+            driver.get(url)
+            wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
+            await get_all_data(driver)
         except Exception as err:
             continue
         
@@ -132,7 +135,6 @@ async def get_all_data(driver):
     counter = 0
     unique_link = []
     while counter <= 100:
-        #product = driver.find_element(By.XPATH, '//*[@id="gf-products"]')
         list_products = driver.find_element(By.CLASS_NAME, "productGrid")
         data_results = list_products.find_elements(By.CLASS_NAME,"product--1")
         print(f"lenght of the data results is {len(data_results)}")
@@ -142,13 +144,10 @@ async def get_all_data(driver):
                 product_link = result.find_element(By.TAG_NAME, "a")
                 link = product_link.get_attribute("href")
                 product_img = result.find_element(By.TAG_NAME, "img").get_attribute("src")
-                print(product_img)
                 if link not in unique_link:
                    unique_link.append(link)
-                   pprint(product_link.get_attribute("href"))
                    product_link.click()
-                   #driver.back()
-                   data = await get_each_product_data(driver, product_link, product_img)   
+                   data = await get_each_product_data(driver, product_link, product_img,link)   
                    if data is None:
                        driver.back()
                        print("the return data is none")
@@ -167,13 +166,14 @@ async def get_all_data(driver):
                         append_file = 'w'  
                    with open(csv_file, mode=append_file, newline='') as file:
                         writer = csv.writer(file)
-                        print("check if this place will be printed")
                         if append_file == 'w':
                            writer.writerow(data.keys())
-                        if not values_exist(data.values(),csv_file):
+                        if not values_exist(str(data['Title']),csv_file):
                            writer.writerow(data.values())
-                        print("this may be printed")
-                   pprint(data)
+                           pprint(data)
+                        else:
+                            print("value exist inside the csv...")
+                   
                    driver.back()
                    wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
                    await asyncio.sleep(3)
@@ -189,6 +189,9 @@ async def get_all_data(driver):
                 return 
             await asyncio.sleep(3)
             counter += 1
+        except (StaleElementReferenceException, NoSuchElementException, WebDriverException) as e:
+            continue
+
         except Exception as err:
             #driver.back()
             current_url = driver.current_url
