@@ -2,18 +2,16 @@ import streamlit as st
 import pandas as pd
 import asyncio
 import os 
+import csv
 import pandas as pd
 import numpy as np
 import pandas as pd
 import streamlit as st
 #import altair as alt
 file_path = os.path.dirname(__file__)
-
-
-
-app_csv = "/home/abrahamalgorithm/Webscraping-monitoring-/output.csv"
-#soloprovision_csv = "/home/abrahamalgorithm/Webscraping-monitoring-/soleprovision.csv"
-shoesstore_cvs = "/home/abrahamalgorithm/Webscraping-monitoring-/shoestore.csv"
+dir_name = os.path.dirname(file_path)
+app_csv = os.path.join(dir_name, 'output.csv')
+shoesstore_cvs = os.path.join(dir_name, 'shoestore.csv')
 
 
 
