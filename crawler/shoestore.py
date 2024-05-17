@@ -56,8 +56,11 @@ def values_exist(values, csv_file):
     
 async def next_button(driver):
     #//*[@id="gf-products"]
-     driver.execute_script("window.scrollBy(0, 600);")
-     next = driver.find_element(By.CLASS_NAME,"next")
+    #pagination-link pagination-link--next
+    #//*[@id="product-listing-container"]/div[2]/ul/li[7]/a
+    ##product-listing-container > div.pagination > ul > li.pagination-item.pagination-item--next > a
+     driver.execute_script("window.scrollBy(0, 100);")
+     next = driver.find_element(By.CSS_SELECTOR,"#product-listing-container > div.pagination > ul > li.pagination-item.pagination-item--next > a")
      next.click()
      wait = WebDriverWait(driver, 25)
      wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
@@ -102,7 +105,24 @@ async def get_each_product_data(driver,link,img_link):
     
     
     
-
+async def category(driver):
+    wait = WebDriverWait(driver, 30)
+    #//*[@id="menu"]/nav/ul[1]
+    ##menu > nav > ul.navPages-list.marketplace
+    product_category = driver.find_element(By.CSS_SELECTOR, "#menu > nav > ul.navPages-list.marketplace")
+    list_category = product_category.find_elements(By.CLASS_NAME, "navPages-item")
+    for item in list_category:
+        print('hi')
+        try:
+           link  = item.find_element(By.CLASS_NAME, "navPages-action")
+           url = link.get_attribute("href")
+           print(f"the link is {url}")
+           link.click()
+           wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
+           await get_all_data(driver)
+        except Exception as err:
+            continue
+        
     
     
 async def get_all_data(driver):
@@ -160,7 +180,13 @@ async def get_all_data(driver):
                    continue
                 else:
                     continue
-            await next_button(driver)
+            driver.execute_script("window.scrollBy(0, 700);")
+            try:
+              await next_button(driver)
+              
+            except Exception as err:
+                print("The next button not available on the page")
+                return 
             await asyncio.sleep(3)
             counter += 1
         except Exception as err:
@@ -211,7 +237,7 @@ async def main_(url):
             await click_product_details(driver)
             #await asyncio.sleep(5)
             wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
-            await get_all_data(driver)
+            await category(driver)
             print("why the code break")
             break
         
