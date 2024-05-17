@@ -109,12 +109,12 @@ async def category(driver):
     wait = WebDriverWait(driver, 30)
     #//*[@id="menu"]/nav/ul[1]
     ##menu > nav > ul.navPages-list.marketplace
-    product_category = driver.find_element(By.CSS_SELECTOR, "#menu > nav > ul.navPages-list.marketplace")
+    product_category = driver.find_element(By.CSS_SELECTOR, "#menu > nav > navPages-list marketplace > navPages-item")
     list_category = product_category.find_elements(By.CLASS_NAME, "navPages-item")
     for item in list_category:
         print('hi')
         try:
-           link  = item.find_element(By.CLASS_NAME, "navPages-action")
+           link  = item.find_element(By.CLASS_NAME, "navPages-action navPages-action-depth-max has-subMenu is-root")
            url = link.get_attribute("href")
            print(f"the link is {url}")
            link.click()
