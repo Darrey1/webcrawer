@@ -88,8 +88,10 @@ async def main():
         st.divider()
     elif selected_option == 'CSV Table':
         st.title('CSV Table')
+        st.write('Web1 : https://www.aperfectdealer.com/')
         csv_table(df1)
         st.divider()
+        st.write('Web2 : https://shoestores.com/')
         csv_table(df2)
     elif selected_option == 'Analysis':
         st.subheader('Market Data Analysis And Visualisation')
