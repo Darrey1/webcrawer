@@ -6,7 +6,7 @@ import asyncio
 import threading
 from web.page import streamlit_app
 
-async def func():
+async def scrape_data():
       #(aperfectdealer website)
      url1 = "https://www.aperfectdealer.com/"
      #(soleprovision website)
@@ -19,13 +19,19 @@ async def func():
      await asyncio.gather(main(url1),main_(url3))
      
 
-
-if __name__ =="__main__":
+async def main_loop():
     while True:
-         streamlit_app()
-         #asyncio.run(func())
-                                            
-         #sleep(3600)
-    
+        await scrape_data()
+        await asyncio.sleep(3600) 
+
+def start_async_tasks():
+    asyncio.run(main_loop())
+
+if __name__ == "__main__":
+    # Start the async tasks in a separate thread
+    threading.Thread(target=start_async_tasks).start()
+
+    # Run Streamlit in the main thread
+    streamlit_app()
     
  
