@@ -4,6 +4,7 @@ from crawler.soleprovision import main_func
 from time import sleep
 import asyncio
 import threading
+from web.page import streamlit_app
 
 async def func():
       #(aperfectdealer website)
@@ -21,6 +22,7 @@ async def func():
 
 if __name__ =="__main__":
     while True:
+         streamlit_app()
          asyncio.run(func())
                                             
          sleep(3600)

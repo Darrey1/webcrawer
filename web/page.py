@@ -64,14 +64,14 @@ def data_analysis(df):
     
 
 
-@st.cache_data
+#@st.cache_data
 def load_data():
     df1 = pd.read_csv(app_csv)
     df2 = pd.read_csv(shoesstore_cvs)
     return df1, df2
 
 
-async def main():
+def streamlit_app():
     st.sidebar.title('Menu')
     df1, df2 =load_data()
     menu_options = ['Home', 'CSV Table', 'Analysis', 'Scrap']
@@ -102,4 +102,4 @@ async def main():
         
         
         
-asyncio.run(main())
+
