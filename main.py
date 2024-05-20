@@ -32,5 +32,5 @@ if __name__ == "__main__":
     threading.Thread(target=start_streamlit, daemon=True).start()
 
     # Run the main_loop in the asyncio event loop
-    asyncio.run(main_loop())
+    #asyncio.run(main_loop())
 
