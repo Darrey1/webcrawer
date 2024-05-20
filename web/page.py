@@ -76,7 +76,7 @@ def streamlit_app():
         st.balloons()
         st.divider()
         new_df = df1.loc[:, ['Timespan', 'Price']]
-        st.bar_chart(new_df, x="Timespan", y="Price")
+        st.line_chart(new_df, x="Timespan", y="Price",color=["#FF0000"])
         st.divider()
     elif selected_option == 'CSV Table':
         st.title('CSV Table')
