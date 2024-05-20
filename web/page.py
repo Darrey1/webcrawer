@@ -54,6 +54,7 @@ def data_analysis(df,df2, key_prefix):
     new_df = df.loc[:, ['Timespan', 'Price']]
     new_df2 = df2.loc[:, ['Timespan', 'Price']]
     st.divider()
+    st.write('Web1 : https://www.aperfectdealer.com/')
     st.write("A line chart of price against time", unsafe_allow_html=True)
     st.line_chart(new_df, x="Timespan", y="Price",color=["#FF0000"])
     st.divider()
@@ -61,6 +62,7 @@ def data_analysis(df,df2, key_prefix):
     st.bar_chart(new_df, x="Timespan", y="Price",color=["#00FF00"])
     
     st.divider()
+    st.write('Web2 : https://shoestores.com/')
     st.write("A line chart of price against time", unsafe_allow_html=True)
     st.line_chart(new_df2, x="Timespan", y="Price",color=["#00FF00"])
     st.divider()
@@ -83,10 +85,11 @@ def streamlit_app():
         st.write('Our project aims to gather information about various products from websites. With web scraping technology, we extract details like product names, descriptions, images, prices, and ages. This data helps users make informed decisions and stay updated on product trends. Explore our site to learn more about product scraping and its applications.!')
         st.balloons()
         st.divider()
+        st.write('Web1 : https://www.aperfectdealer.com/')
         new_df = df1.loc[:, ['Timespan', 'Price']]
         st.line_chart(new_df, x="Timespan", y="Price",color=["#FF0000"])
         st.divider()
-        
+        st.write('Web2 : https://shoestores.com/')
         new_df2 = df2.loc[:, ['Timespan', 'Price']]
         st.line_chart(new_df2, x="Timespan", y="Price",color=["#0FFF00"])
         st.divider()

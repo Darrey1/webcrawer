@@ -23,7 +23,7 @@ async def setup_driver(address,user_agent):
     options.add_argument("--disable-notifications")
     #options.add_argument(f"--proxy-server={address}")
     options.add_argument(f'--user-agent={user_agent}')
-    #options.add_argument("--headless")
+    options.add_argument("--headless")
     driver = Chrome(
         service=ChromeService(executable_path=ChromeDriverManager().install()), options=options
     )
