@@ -15,7 +15,7 @@ shoesstore_cvs = os.path.join(dir_name, 'shoestore.csv')
 
 
 
-def csv_table(df):
+def csv_table(df,key_prefix):
     
     df["Timespan"] = pd.to_datetime(df["Timespan"])
 
@@ -47,55 +47,47 @@ def csv_table(df):
         df,
         column_config=config,
         hide_index=True,
+        key=f"{key_prefix}_data_editor"
     )
     
-    
-    
-def data_analysis(df):
+def data_analysis(df, key_prefix):
     new_df = df.loc[:, ['Timespan', 'Price']]
     st.divider()
-    st.write("A line chart of price against time",unsafe_allow_html=True)
-    
-    st.line_chart(new_df, x="Timespan", y="Price",color=["#0000FF"])#, "#0000FF"
+    st.write("A line chart of price against time", unsafe_allow_html=True)
+    st.line_chart(new_df, x="Timespan", y="Price", key=f"{key_prefix}_line_chart")
     st.divider()
-    st.write("A bar chart of price against time",unsafe_allow_html=True)
-    st.bar_chart(new_df, x="Timespan", y="Price",color=["#FF0000"])
+    st.write("A bar chart of price against time", unsafe_allow_html=True)
+    st.bar_chart(new_df, x="Timespan", y="Price", key=f"{key_prefix}_bar_chart")
     
-    
-
-
-#@st.cache_data
 def load_data():
     df1 = pd.read_csv(app_csv)
     df2 = pd.read_csv(shoesstore_cvs)
     return df1, df2
 
-
 def streamlit_app():
     st.sidebar.title('Menu')
-    df1, df2 =load_data()
+    df1, df2 = load_data()
     menu_options = ['Home', 'CSV Table', 'Analysis', 'Scrap']
-    selected_option = st.sidebar.radio('Select an option', menu_options,key="radio1")
-
+    selected_option = st.sidebar.radio('Select an option', menu_options)
 
     if selected_option == 'Home':
-        st.subheader('Web Scraping and Data Visualization for Product Monitoring',divider='rainbow')
+        st.subheader('Web Scraping and Data Visualization for Product Monitoring', divider='rainbow')
         st.write('Our project aims to gather information about various products from websites. With web scraping technology, we extract details like product names, descriptions, images, prices, and ages. This data helps users make informed decisions and stay updated on product trends. Explore our site to learn more about product scraping and its applications.!')
         st.balloons()
         st.divider()
         new_df = df1.loc[:, ['Timespan', 'Price']]
-        st.bar_chart(new_df, x="Timespan", y="Price")
+        st.bar_chart(new_df, x="Timespan", y="Price", key="home_bar_chart")
         st.divider()
     elif selected_option == 'CSV Table':
         st.title('CSV Table')
         st.write('Web1 : https://www.aperfectdealer.com/')
-        csv_table(df1)
+        csv_table(df1, "web1")
         st.divider()
         st.write('Web2 : https://shoestores.com/')
-        csv_table(df2)
+        csv_table(df2, "web2")
     elif selected_option == 'Analysis':
         st.subheader('Market Data Analysis And Visualisation')
-        data_analysis(df1)
+        data_analysis(df1, "analysis")
     elif selected_option == 'Scrap':
         st.title('Scrap')
         st.write('Scraping functionality goes here.')
