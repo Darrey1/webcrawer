@@ -50,14 +50,22 @@ def csv_table(df,key_prefix):
         key=f"{key_prefix}_data_editor"
     )
     
-def data_analysis(df, key_prefix):
+def data_analysis(df,df2, key_prefix):
     new_df = df.loc[:, ['Timespan', 'Price']]
+    new_df2 = df2.loc[:, ['Timespan', 'Price']]
     st.divider()
     st.write("A line chart of price against time", unsafe_allow_html=True)
     st.line_chart(new_df, x="Timespan", y="Price",color=["#FF0000"])
     st.divider()
     st.write("A bar chart of price against time", unsafe_allow_html=True)
     st.bar_chart(new_df, x="Timespan", y="Price",color=["#00FF00"])
+    
+    st.divider()
+    st.write("A line chart of price against time", unsafe_allow_html=True)
+    st.line_chart(new_df2, x="Timespan", y="Price",color=["#00FF00"])
+    st.divider()
+    st.write("A bar chart of price against time", unsafe_allow_html=True)
+    st.bar_chart(new_df2, x="Timespan", y="Price",color=["#FF0000"])
     
 def load_data():
     df1 = pd.read_csv(app_csv)
@@ -78,6 +86,10 @@ def streamlit_app():
         new_df = df1.loc[:, ['Timespan', 'Price']]
         st.line_chart(new_df, x="Timespan", y="Price",color=["#FF0000"])
         st.divider()
+        
+        new_df2 = df2.loc[:, ['Timespan', 'Price']]
+        st.line_chart(new_df2, x="Timespan", y="Price",color=["#0FFF00"])
+        st.divider()
     elif selected_option == 'CSV Table':
         st.title('CSV Table')
         st.write('Web1 : https://www.aperfectdealer.com/')
@@ -87,7 +99,7 @@ def streamlit_app():
         csv_table(df2, "web2")
     elif selected_option == 'Analysis':
         st.subheader('Market Data Analysis And Visualisation')
-        data_analysis(df1, "analysis")
+        data_analysis(df1,df2, "analysis")
     elif selected_option == 'Scrap':
         st.title('Scrap')
         st.write('Scraping functionality goes here.')
