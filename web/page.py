@@ -75,7 +75,7 @@ def streamlit_app():
     st.sidebar.title('Menu')
     df1, df2 =load_data()
     menu_options = ['Home', 'CSV Table', 'Analysis', 'Scrap']
-    selected_option = st.sidebar.radio('Select an option', menu_options)
+    selected_option = st.sidebar.radio('Select an option', menu_options,key="radio1")
 
 
     if selected_option == 'Home':
