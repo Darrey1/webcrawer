@@ -19,18 +19,13 @@ async def func():
      await asyncio.gather(main(url1),main_(url3))
      
 
-async def main_loop():
+
+if __name__ =="__main__":
     while True:
-        await func()
-        await asyncio.sleep(3600)  # Wait for 1 hour
-
-def start_streamlit():
-    streamlit_app()
-
-if __name__ == "__main__":
-    # Start the Streamlit app in a separate thread
-    threading.Thread(target=start_streamlit, daemon=True).start()
-
-    # Run the main_loop in the asyncio event loop
-    #asyncio.run(main_loop())
-
+         streamlit_app()
+         #asyncio.run(func())
+                                            
+         #sleep(3600)
+    
+    
+ 
