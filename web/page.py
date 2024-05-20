@@ -54,10 +54,10 @@ def data_analysis(df, key_prefix):
     new_df = df.loc[:, ['Timespan', 'Price']]
     st.divider()
     st.write("A line chart of price against time", unsafe_allow_html=True)
-    st.line_chart(new_df, x="Timespan", y="Price")
+    st.line_chart(new_df, x="Timespan", y="Price",color=["#0000FF"])
     st.divider()
     st.write("A bar chart of price against time", unsafe_allow_html=True)
-    st.bar_chart(new_df, x="Timespan", y="Price")
+    st.bar_chart(new_df, x="Timespan", y="Price",color=["#00FF00"])
     
 def load_data():
     df1 = pd.read_csv(app_csv)
