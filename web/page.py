@@ -54,10 +54,10 @@ def data_analysis(df, key_prefix):
     new_df = df.loc[:, ['Timespan', 'Price']]
     st.divider()
     st.write("A line chart of price against time", unsafe_allow_html=True)
-    st.line_chart(new_df, x="Timespan", y="Price", key=f"{key_prefix}_line_chart")
+    st.line_chart(new_df, x="Timespan", y="Price")
     st.divider()
     st.write("A bar chart of price against time", unsafe_allow_html=True)
-    st.bar_chart(new_df, x="Timespan", y="Price", key=f"{key_prefix}_bar_chart")
+    st.bar_chart(new_df, x="Timespan", y="Price")
     
 def load_data():
     df1 = pd.read_csv(app_csv)
@@ -76,7 +76,7 @@ def streamlit_app():
         st.balloons()
         st.divider()
         new_df = df1.loc[:, ['Timespan', 'Price']]
-        st.bar_chart(new_df, x="Timespan", y="Price", key="home_bar_chart")
+        st.bar_chart(new_df, x="Timespan", y="Price")
         st.divider()
     elif selected_option == 'CSV Table':
         st.title('CSV Table')
