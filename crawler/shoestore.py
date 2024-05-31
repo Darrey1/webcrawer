@@ -78,11 +78,13 @@ async def get_each_product_data(driver,link,img_link,url):
       wait.until(lambda driver: driver.execute_script("return document.readyState") == "complete")
       Timespan = current_datetime.strftime('%Y-%m-%d %H:%M:%S')
       title = driver.find_element(By.CLASS_NAME, "productView-title")
+      SKU = driver.find_element(By.CLASS_NAME, "productView-info-value")
       sale_price = driver.find_element(By.XPATH, "/html/body/div[8]/div[1]/div/div[1]/section[1]/div/div[5]/div[2]/div[2]/span[3]")
       driver.execute_script("window.scrollBy(0, 200);")
       await asyncio.sleep(3)
       dic_data['Timespan'] = Timespan
       dic_data['Title']= title.text
+      dic_data['SKU'] = SKU.text
       dic_data['Price']= sale_price.text
       dic_data['Image']= img_link
       dic_data['Url'] = url
