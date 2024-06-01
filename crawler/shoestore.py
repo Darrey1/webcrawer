@@ -82,7 +82,7 @@ async def get_each_product_data(driver,link,img_link,url):
       sale_price = driver.find_element(By.XPATH, "/html/body/div[8]/div[1]/div/div[1]/section[1]/div/div[5]/div[2]/div[2]/span[3]")
       driver.execute_script("window.scrollBy(0, 200);")
       await asyncio.sleep(3)
-      dic_data['Timespan'] = Timespan
+      dic_data['Date'] = Timespan
       dic_data['Title']= title.text
       dic_data['SKU'] = SKU.text
       dic_data['Price']= sale_price.text

@@ -87,7 +87,7 @@ async def get_each_product_data(driver,link,url,image_link):
     description = driver.find_element(By.CSS_SELECTOR, "#short_description_content")
     price = driver.find_element(By.ID, "our_price_display")
     await asyncio.sleep(3)
-    dic_data['Timespan'] = Timespan
+    dic_data['Date'] = Timespan
     dic_data['Title']= title.text
     dic_data['Refrence_number']= refrence_number.text
     dic_data['Description']= description.text

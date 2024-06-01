@@ -17,7 +17,7 @@ shoesstore_cvs = os.path.join(dir_name, 'shoestore.csv')
 
 def csv_table(df,key_prefix):
     
-    df["Timespan"] = pd.to_datetime(df["Timespan"])
+    df["Date"] = pd.to_datetime(df["Date"])
 
     config = {
             "Image": st.column_config.ImageColumn(
@@ -36,8 +36,8 @@ def csv_table(df,key_prefix):
             step=1,
             format="$%d",
         ),
-        "Timespan": st.column_config.DatetimeColumn(
-            "Timespan",
+        "Date": st.column_config.DatetimeColumn(
+            "Date",
             format="D MMM YYYY, h:mm a",
             step=60,
         )
@@ -51,23 +51,23 @@ def csv_table(df,key_prefix):
     )
     
 def data_analysis(df,df2, key_prefix):
-    new_df = df.loc[:, ['Timespan', 'Price']]
-    new_df2 = df2.loc[:, ['Timespan', 'Price']]
+    new_df = df.loc[:, ['Date', 'Price']]
+    new_df2 = df2.loc[:, ['Date', 'Price']]
     st.divider()
     st.write('Web1 : https://www.aperfectdealer.com/')
     st.write("A line chart of price against time", unsafe_allow_html=True)
-    st.line_chart(new_df, x="Timespan", y="Price",color=["#FF0000"])
+    st.line_chart(new_df, x="Date", y="Price",color=["#FF0000"])
     st.divider()
     st.write("A bar chart of price against time", unsafe_allow_html=True)
-    st.bar_chart(new_df, x="Timespan", y="Price",color=["#00FF00"])
+    st.bar_chart(new_df, x="Date", y="Price",color=["#00FF00"])
     
     st.divider()
     st.write('Web2 : https://shoestores.com/')
     st.write("A line chart of price against time", unsafe_allow_html=True)
-    st.line_chart(new_df2, x="Timespan", y="Price",color=["#00FF00"])
+    st.line_chart(new_df2, x="Date", y="Price",color=["#00FF00"])
     st.divider()
     st.write("A bar chart of price against time", unsafe_allow_html=True)
-    st.bar_chart(new_df2, x="Timespan", y="Price",color=["#FF0000"])
+    st.bar_chart(new_df2, x="Date", y="Price",color=["#FF0000"])
     
 def load_data():
     df1 = pd.read_csv(app_csv)
@@ -86,12 +86,12 @@ def streamlit_app():
         st.balloons()
         st.divider()
         st.write('Web1 : https://www.aperfectdealer.com/')
-        new_df = df1.loc[:, ['Timespan', 'Price']]
-        st.line_chart(new_df, x="Timespan", y="Price",color=["#FF0000"])
+        new_df = df1.loc[:, ['Date', 'Price']]
+        st.line_chart(new_df, x="Date", y="Price",color=["#FF0000"])
         st.divider()
         st.write('Web2 : https://shoestores.com/')
-        new_df2 = df2.loc[:, ['Timespan', 'Price']]
-        st.line_chart(new_df2, x="Timespan", y="Price",color=["#0FFF00"])
+        new_df2 = df2.loc[:, ['Date', 'Price']]
+        st.line_chart(new_df2, x="Date", y="Price",color=["#0FFF00"])
         st.divider()
     elif selected_option == 'CSV Table':
         st.title('CSV Table')
@@ -108,5 +108,5 @@ def streamlit_app():
         st.write('Scraping functionality goes here.')
         
         
-        
+streamlit_app()    
 
