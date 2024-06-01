@@ -7,7 +7,7 @@ import threading
 
 async def func():
       #(aperfectdealer website)
-     url1 = "https://www.aperfectdealer.com/"
+     # url1 = "https://www.aperfectdealer.com/"
      #(soleprovision website)
      #url2 = "https://www.soleprovisions.com/"
      
@@ -15,7 +15,8 @@ async def func():
      url3 ="https://shoestores.com/"
      print("Starting running...")
      print("make sure your have strong internet connection...")
-     await asyncio.gather(main(url1),main_(url3))
+     #await asyncio.gather(main(url1),main_(url3))
+     await asyncio.run(main(url3))
      
 
 
