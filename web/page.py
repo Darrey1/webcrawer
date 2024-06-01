@@ -108,5 +108,4 @@ def streamlit_app():
         st.write('Scraping functionality goes here.')
         
         
-streamlit_app()    
 
